@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
     bool running = true;
 
-    PDLResizeWindow(1024, 768);
+    PDLInit();
 
     while (running)
     {

@@ -1,7 +1,6 @@
 #pragma once
 #include "../pdl_api.h"
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <windows.h>
 
@@ -73,12 +72,12 @@ bool DoWindowMessages()
     return result;
 }
 
-int main(int argc, char *argv[])
+bool PDLInit()
 {
-    HINSTANCE hInstance = GetModuleHandleA(argv[0]);
+    HINSTANCE hInstance = GetModuleHandleA(NULL);
     if (!hInstance)
     {
-        return 1;
+        return false;
     }
 
     WNDCLASS wc      = {0};
@@ -95,12 +94,10 @@ int main(int argc, char *argv[])
 
     if (pdlWindowHandle == NULL)
     {
-        return 1;
+        return false;
     }
 
     ShowWindow(pdlWindowHandle, SW_SHOW);
 
-    return game_main(argc, argv);
+    return true;
 }
-
-#define main(argc, argv) game_main(argc, argv)
