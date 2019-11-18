@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 #include <stdio.h>
 #include <windows.h>
 
@@ -8,6 +9,39 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    switch (uMsg)
+    {
+        case WM_CLOSE:
+        {
+            DestroyWindow(hwnd);
+        }
+        break;
+
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+            return 0;
+        }
+        break;
+
+        default:
+        {
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        }
+        break;
+    }
+}
+
+void Win32MessageLoop()
+{
+    bool gameRunning = true;
+
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0) && gameRunning == true)
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -31,6 +65,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     ShowWindow(windowHandle, nCmdShow);
+
+    Win32MessageLoop();
 
     return 0;
 }
