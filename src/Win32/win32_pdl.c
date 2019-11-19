@@ -76,8 +76,14 @@ bool PDLDoWindowMessages()
     return result;
 }
 
-bool PDLInit()
+bool PDLInit(const char *title, size_t title_len)
 {
+    const char *terminated_title = malloc(title_len + 1);
+    if (memcpy(terminated_title, title, title_len + 1) == NULL)
+    {
+        return false;
+    }
+
     HINSTANCE hInstance = GetModuleHandleA(NULL);
     if (!hInstance)
     {
@@ -91,10 +97,13 @@ bool PDLInit()
 
     RegisterClass(&wc);
 
-    pdlWindowHandle =
-        CreateWindowEx(0, WINDOW_CLASS_NAME, "Game Window", WS_OVERLAPPEDWINDOW,
-                       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                       CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+    pdlWindowHandle = CreateWindowEx(
+        0, WINDOW_CLASS_NAME, terminated_title, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL,
+        hInstance, NULL);
+
+    free(terminated_title);
+    terminated_title = NULL;
 
     if (pdlWindowHandle == NULL)
     {

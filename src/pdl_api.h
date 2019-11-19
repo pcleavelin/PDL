@@ -8,4 +8,4 @@ void PDLResizeWindow(uint32_t width, uint32_t height);
 void PDLCloseWindow();
 
 bool PDLDoWindowMessages();
-bool PDLInit();
+bool PDLInit(const char *title, size_t title_len);
