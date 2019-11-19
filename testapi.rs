@@ -3,7 +3,10 @@ extern crate pdl_sys;
 use pdl_sys::*;
 
 fn main() {
-	pdl_init("My Rust Game");
+	if !pdl_init("My Rust Game")
+	{
+		panic!("Failed to initialize pdl!");
+	}
 
 	pdl_resize_window(1024, 768);
 

@@ -6,7 +6,12 @@
 #include <windows.h>
 #define WINDOW_CLASS_NAME "CoolGameClassName"
 
-HWND pdlWindowHandle = NULL;
+static HDC        bitmapDeviceContext = NULL;
+static BITMAPINFO bitmapInfo          = {0};
+static HBITMAP    bitmapHandle        = {0};
+static void *     bitmapMemory        = NULL;
+
+static HWND pdlWindowHandle = NULL;
 
 /*
         API to be used externally from the game
@@ -36,6 +41,40 @@ void PDLCloseWindow()
     DestroyWindow(pdlWindowHandle);
 }
 
+void Win32ResizeDIBSection(int width, int height)
+{
+    if (bitmapHandle)
+    {
+        DeleteObject(bitmapHandle);
+    }
+
+    if (!bitmapDeviceContext)
+    {
+        bitmapDeviceContext = CreateCompatibleDC(0);
+    }
+
+    bitmapInfo.bmiHeader.biSize          = sizeof(bitmapInfo.bmiHeader);
+    bitmapInfo.bmiHeader.biWidth         = width;
+    bitmapInfo.bmiHeader.biHeight        = height;
+    bitmapInfo.bmiHeader.biPlanes        = 1;
+    bitmapInfo.bmiHeader.biBitCount      = 32;
+    bitmapInfo.bmiHeader.biCompression   = BI_RGB;
+    bitmapInfo.bmiHeader.biSizeImage     = 0;
+    bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
+    bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
+    bitmapInfo.bmiHeader.biClrUsed       = 0;
+    bitmapInfo.bmiHeader.biClrImportant  = 0;
+
+    bitmapHandle = CreateDIBSection(bitmapDeviceContext, &bitmapInfo,
+                                    DIB_RGB_COLORS, &bitmapMemory, 0, 0);
+}
+
+void Win32UpdateWindow(HDC hdc, int x, int y, int width, int height)
+{
+    StretchDIBits(hdc, x, y, width, height, x, y, width, height, bitmapMemory,
+                  &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
@@ -49,6 +88,40 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_DESTROY:
         {
             PostQuitMessage(0);
+            return 0;
+        }
+        break;
+
+        case WM_SIZE:
+        {
+            // LRESULT result = DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+            RECT rect = {0};
+            GetClientRect(hwnd, &rect);
+
+            int width  = rect.right - rect.left;
+            int height = rect.bottom - rect.top;
+
+            Win32ResizeDIBSection(width, height);
+
+            return 0;
+        }
+        break;
+
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            HDC         hdc = BeginPaint(hwnd, &ps);
+
+            int x      = ps.rcPaint.left;
+            int y      = ps.rcPaint.top;
+            int width  = ps.rcPaint.right - ps.rcPaint.left;
+            int height = ps.rcPaint.bottom - ps.rcPaint.top;
+
+            Win32UpdateWindow(hdc, x, y, width, height);
+
+            EndPaint(hwnd, &ps);
+
             return 0;
         }
         break;
@@ -78,11 +151,12 @@ bool PDLDoWindowMessages()
 
 bool PDLInit(const char *title, size_t title_len)
 {
-    const char *terminated_title = malloc(title_len + 1);
-    if (memcpy(terminated_title, title, title_len + 1) == NULL)
+    char *terminated_title = malloc(title_len + 1);
+    if (memcpy(terminated_title, title, title_len) == NULL)
     {
         return false;
     }
+    terminated_title[title_len] = '\0';
 
     HINSTANCE hInstance = GetModuleHandleA(NULL);
     if (!hInstance)
