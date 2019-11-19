@@ -23,8 +23,12 @@ void PDLHideWindow()
 
 void PDLResizeWindow(unsigned int width, unsigned int height)
 {
-    MessageBox(pdlWindowHandle, "Resizing Not Supported", "Nope",
-               MB_OK | MB_ICONERROR);
+    RECT rect;
+    if (GetWindowRect(pdlWindowHandle, &rect))
+    {
+        SetWindowPos(pdlWindowHandle, HWND_TOP, rect.left, rect.top, width,
+                     height, SWP_SHOWWINDOW);
+    }
 }
 
 void PDLCloseWindow()
