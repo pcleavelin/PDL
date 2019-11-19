@@ -1,9 +1,9 @@
 #pragma once
+
 #include "../pdl_api.h"
 
 #include <stdio.h>
 #include <windows.h>
-
 #define WINDOW_CLASS_NAME "CoolGameClassName"
 
 HWND pdlWindowHandle = NULL;
@@ -57,7 +57,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 }
 
-bool DoWindowMessages()
+bool PDLDoWindowMessages()
 {
     MSG msg;
 

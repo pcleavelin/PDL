@@ -1,4 +1,4 @@
-#include "win32_pdl.h"
+#include "../pdl_api.h"
 
 int main(int argc, char *argv[])
 {
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
     while (running)
     {
-        running = DoWindowMessages();
+        running = PDLDoWindowMessages();
     }
 
     return 0;
