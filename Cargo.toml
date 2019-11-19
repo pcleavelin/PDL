@@ -1,0 +1,12 @@
+[package]
+name = "pdl-sys"
+version = "0.1.0"
+authors = ["Patrick Cleavelin <patrick@uptrainsoftware.com>"]
+edition = "2018"
+
+links = "pdl"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

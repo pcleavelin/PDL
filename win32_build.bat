@@ -1,17 +1,9 @@
-@echo off
+call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 
-mkdir build
-mkdir build\lib
-mkdir build\lib\win32
-mkdir build\win32test
+echo %OUT_DIR%
 
 rem Build static PDL library
-pushd build\lib\win32
-cl.exe -Zi /c ../../../src/Win32/win32_pdl.c /link user32.lib gdi32.lib
+cl.exe -Zi /c /Fd%OUT_DIR%\ /Fo%OUT_DIR%\ src/Win32/win32_pdl.c /link user32.lib gdi32.lib
+pushd %OUT_DIR%
 lib.exe /OUT:pdl.lib win32_pdl.obj
-popd
-
-rem Build test application
-pushd build\win32test
-cl.exe -Zi ../../src/Win32/main.c /link user32.lib gdi32.lib ../lib/win32/pdl.lib /entry:mainCRTStartup
 popd
