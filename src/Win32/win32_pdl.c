@@ -90,8 +90,8 @@ void Win32UpdateWindow(HDC hdc, RECT *windowRect, int x, int y, int width,
     int windowWidth  = windowRect->right - windowRect->left;
     int windowHeight = windowRect->bottom - windowRect->top;
 
-    StretchDIBits(hdc, 0, 0, bitmapWidth, bitmapHeight, 0, 0, windowWidth,
-                  windowHeight, bitmapMemory, &bitmapInfo, DIB_RGB_COLORS,
+    StretchDIBits(hdc, 0, 0, windowWidth, windowHeight, 0, 0, bitmapWidth,
+                  bitmapHeight, bitmapMemory, &bitmapInfo, DIB_RGB_COLORS,
                   SRCCOPY);
 }
 
@@ -131,19 +131,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-        case WM_SIZE:
-        {
-            RECT rect = {0};
-            GetClientRect(hwnd, &rect);
+            // case WM_SIZE:
+            // {
+            //     RECT rect = {0};
+            //     GetClientRect(hwnd, &rect);
 
-            int width  = rect.right - rect.left;
-            int height = rect.bottom - rect.top;
+            //     int width  = rect.right - rect.left;
+            //     int height = rect.bottom - rect.top;
 
-            Win32ResizeDIBSection(width, height);
+            //     Win32ResizeDIBSection(width, height);
 
-            return 0;
-        }
-        break;
+            //     return 0;
+            // }
+            // break;
 
         case WM_KEYUP:
         {

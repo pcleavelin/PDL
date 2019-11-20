@@ -24,6 +24,7 @@ fn main() {
 
 		for y in 0..HEIGHT {
 			for x in 0..WIDTH {
+				// Do some pixel magic
 				bitmap[x + y * WIDTH] = (0xFF000000 | (x%256) | ((y%256) << 8)) as u32;
 			}
 		}
