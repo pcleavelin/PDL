@@ -14,4 +14,4 @@ call .\win32test_rust.bat
 
 if %ERRORLEVEL% GEQ 1 EXIT /B %ERRORLEVEL%
 
-rem .\target\win32test\testapi.exe
+.\target\win32test\testapi.exe

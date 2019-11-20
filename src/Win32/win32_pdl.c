@@ -6,16 +6,13 @@
 #include <windows.h>
 #define WINDOW_CLASS_NAME "CoolGameClassName"
 
-static HDC        bitmapDeviceContext = NULL;
-static BITMAPINFO bitmapInfo          = {0};
-static HBITMAP    bitmapHandle        = {0};
-static void *     bitmapMemory        = NULL;
+static BITMAPINFO bitmapInfo   = {0};
+static void *     bitmapMemory = NULL;
+static int        bitmapWidth;
+static int        bitmapHeight;
 
 static HWND pdlWindowHandle = NULL;
 
-/*
-        API to be used externally from the game
-*/
 void PDLShowWindow()
 {
     ShowWindow(pdlWindowHandle, SW_SHOW);
@@ -29,10 +26,24 @@ void PDLHideWindow()
 void PDLResizeWindow(unsigned int width, unsigned int height)
 {
     RECT rect;
-    if (GetWindowRect(pdlWindowHandle, &rect))
+
+    if (GetClientRect(pdlWindowHandle, &rect))
     {
-        SetWindowPos(pdlWindowHandle, HWND_TOP, rect.left, rect.top, width,
-                     height, SWP_SHOWWINDOW);
+        int x = rect.left;
+        int y = rect.right;
+
+        rect.left   = 0;
+        rect.top    = 0;
+        rect.right  = width;
+        rect.bottom = height;
+
+        AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+
+        int winWidth  = rect.right - rect.left;
+        int winHeight = rect.bottom - rect.top;
+
+        SetWindowPos(pdlWindowHandle, HWND_TOP, x, y, winWidth, winHeight,
+                     SWP_SHOWWINDOW);
     }
 }
 
@@ -43,19 +54,17 @@ void PDLCloseWindow()
 
 void Win32ResizeDIBSection(int width, int height)
 {
-    if (bitmapHandle)
+    if (bitmapMemory)
     {
-        DeleteObject(bitmapHandle);
+        VirtualFree(bitmapMemory, NULL, MEM_RELEASE);
     }
 
-    if (!bitmapDeviceContext)
-    {
-        bitmapDeviceContext = CreateCompatibleDC(0);
-    }
+    bitmapWidth  = width;
+    bitmapHeight = height;
 
     bitmapInfo.bmiHeader.biSize          = sizeof(bitmapInfo.bmiHeader);
-    bitmapInfo.bmiHeader.biWidth         = width;
-    bitmapInfo.bmiHeader.biHeight        = height;
+    bitmapInfo.bmiHeader.biWidth         = bitmapWidth;
+    bitmapInfo.bmiHeader.biHeight        = -bitmapHeight;
     bitmapInfo.bmiHeader.biPlanes        = 1;
     bitmapInfo.bmiHeader.biBitCount      = 32;
     bitmapInfo.bmiHeader.biCompression   = BI_RGB;
@@ -65,14 +74,38 @@ void Win32ResizeDIBSection(int width, int height)
     bitmapInfo.bmiHeader.biClrUsed       = 0;
     bitmapInfo.bmiHeader.biClrImportant  = 0;
 
-    bitmapHandle = CreateDIBSection(bitmapDeviceContext, &bitmapInfo,
-                                    DIB_RGB_COLORS, &bitmapMemory, 0, 0);
+    bitmapMemory = VirtualAlloc(NULL, sizeof(uint32_t) * width * height,
+                                MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 }
 
-void Win32UpdateWindow(HDC hdc, int x, int y, int width, int height)
+void Win32UpdateWindow(HDC hdc, RECT *windowRect, int x, int y, int width,
+                       int height)
 {
-    StretchDIBits(hdc, x, y, width, height, x, y, width, height, bitmapMemory,
-                  &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+    int windowWidth  = windowRect->right - windowRect->left;
+    int windowHeight = windowRect->bottom - windowRect->top;
+
+    StretchDIBits(hdc, 0, 0, bitmapWidth, bitmapHeight, 0, 0, windowWidth,
+                  windowHeight, bitmapMemory, &bitmapInfo, DIB_RGB_COLORS,
+                  SRCCOPY);
+}
+
+void PDLBlit(uint32_t *bitmap)
+{
+    if (bitmapMemory)
+    {
+        memcpy(bitmapMemory, bitmap,
+               sizeof(uint32_t) * bitmapWidth * bitmapHeight);
+    }
+
+    HDC  deviceContext = GetDC(pdlWindowHandle);
+    RECT rect          = {0};
+    GetClientRect(pdlWindowHandle, &rect);
+
+    int width  = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+    Win32UpdateWindow(deviceContext, &rect, 0, 0, width, height);
+
+    ReleaseDC(pdlWindowHandle, deviceContext);
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -94,8 +127,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_SIZE:
         {
-            // LRESULT result = DefWindowProc(hwnd, uMsg, wParam, lParam);
-
             RECT rect = {0};
             GetClientRect(hwnd, &rect);
 
@@ -118,7 +149,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             int width  = ps.rcPaint.right - ps.rcPaint.left;
             int height = ps.rcPaint.bottom - ps.rcPaint.top;
 
-            Win32UpdateWindow(hdc, x, y, width, height);
+            Win32UpdateWindow(hdc, &ps.rcPaint, x, y, width, height);
 
             EndPaint(hwnd, &ps);
 
@@ -136,14 +167,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool PDLDoWindowMessages()
 {
-    MSG msg;
-
-    bool result = GetMessage(&msg, NULL, 0, 0);
-
-    if (result)
+    bool result = true;
+    MSG  msg;
+    while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
     {
+        if (msg.message == WM_QUIT)
+        {
+            result = false;
+        }
+
         TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        DispatchMessageA(&msg);
     }
 
     return result;

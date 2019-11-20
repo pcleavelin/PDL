@@ -7,5 +7,7 @@ void PDLHideWindow();
 void PDLResizeWindow(uint32_t width, uint32_t height);
 void PDLCloseWindow();
 
+void PDLBlit(uint32_t *bitmap);
+
 bool PDLDoWindowMessages();
 bool PDLInit(const char *title, size_t title_len);
