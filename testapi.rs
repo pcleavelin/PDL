@@ -18,17 +18,13 @@ fn main() {
 			break;
 		}
 
+		if pdl_get_key(Key::Escape as u8) > 0 {
+			break;
+		}
+
 		for y in 0..HEIGHT {
 			for x in 0..WIDTH {
-				if y == HEIGHT-1 || y == 0
-				{
-					bitmap[x + y * WIDTH] = 0xFF88FF88;
-				}
-
-				if x == y
-				{
-					bitmap[x + y * WIDTH] = 0xFF880088;
-				}
+				bitmap[x + y * WIDTH] = (0xFF000000 | (x%256) | ((y%256) << 8)) as u32;
 			}
 		}
 

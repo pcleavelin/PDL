@@ -10,6 +10,7 @@ static BITMAPINFO bitmapInfo   = {0};
 static void *     bitmapMemory = NULL;
 static int        bitmapWidth;
 static int        bitmapHeight;
+static uint8_t    keys[256];
 
 static HWND pdlWindowHandle = NULL;
 
@@ -50,6 +51,11 @@ void PDLResizeWindow(unsigned int width, unsigned int height)
 void PDLCloseWindow()
 {
     DestroyWindow(pdlWindowHandle);
+}
+
+uint8_t PDLGetKey(uint8_t key)
+{
+    return keys[key];
 }
 
 void Win32ResizeDIBSection(int width, int height)
@@ -136,6 +142,28 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             Win32ResizeDIBSection(width, height);
 
             return 0;
+        }
+        break;
+
+        case WM_KEYUP:
+        {
+            printf("Key UP: 0x%x\n", (uint32_t)wParam);
+
+            if (wParam <= 255)
+            {
+                keys[wParam] = 0;
+            }
+        }
+        break;
+
+        case WM_KEYDOWN:
+        {
+            printf("Key Down: 0x%x\n", (uint32_t)wParam);
+
+            if (wParam <= 255)
+            {
+                keys[wParam] = 1;
+            }
         }
         break;
 
