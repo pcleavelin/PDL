@@ -8,7 +8,7 @@ extern
 	fn PDLBlit(bitmap: *const u32);
 
 	fn PDLDoWindowMessages() -> bool;
-	fn PDLInit(title: *const u8, len: usize) -> bool;
+	fn PDLInit(title: *const u8, len: usize, x: u32, y: u32, width: u32, height: u32) -> bool;
 }
 
 pub fn pdl_show_window()
@@ -57,10 +57,10 @@ pub fn pdl_do_window_messages() -> bool
 	}
 }
 
-pub fn pdl_init(title: &str) -> bool
+pub fn pdl_init(title: &str, x: u32, y: u32, width: u32, height: u32) -> bool
 {
 	unsafe
 	{
-		PDLInit(title.as_ptr(), title.len())
+		PDLInit(title.as_ptr(), title.len(), x, y, width, height)
 	}
 }

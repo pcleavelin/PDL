@@ -183,7 +183,8 @@ bool PDLDoWindowMessages()
     return result;
 }
 
-bool PDLInit(const char *title, size_t title_len)
+bool PDLInit(const char *title, size_t title_len, uint32_t x, uint32_t y,
+             uint32_t width, uint32_t height)
 {
     char *terminated_title = malloc(title_len + 1);
     if (memcpy(terminated_title, title, title_len) == NULL)
@@ -205,9 +206,18 @@ bool PDLInit(const char *title, size_t title_len)
 
     RegisterClass(&wc);
 
+    RECT rect = {
+        x,
+        y,
+        x + width,
+        y + height,
+    };
+
+    AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+
     pdlWindowHandle = CreateWindowEx(
-        0, WINDOW_CLASS_NAME, terminated_title, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL,
+        0, WINDOW_CLASS_NAME, terminated_title, WS_OVERLAPPEDWINDOW, rect.left,
+        rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL,
         hInstance, NULL);
 
     free(terminated_title);
@@ -219,6 +229,7 @@ bool PDLInit(const char *title, size_t title_len)
     }
 
     ShowWindow(pdlWindowHandle, SW_SHOW);
+    Win32ResizeDIBSection(width, height);
 
     return true;
 }

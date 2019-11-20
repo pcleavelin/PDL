@@ -10,4 +10,5 @@ void PDLCloseWindow();
 void PDLBlit(uint32_t *bitmap);
 
 bool PDLDoWindowMessages();
-bool PDLInit(const char *title, size_t title_len);
+bool PDLInit(const char *title, size_t title_len, uint32_t x, uint32_t y,
+             uint32_t width, uint32_t height);
