@@ -8,4 +8,6 @@ fn main() {
 
 	println!("cargo:rustc-link-search=native={}", out_dir);
 	println!("cargo:rustc-link-lib=static=pdl");
+	println!("cargo:rustc-link-lib=dylib=user32");
+	println!("cargo:rustc-link-lib=dylib=gdi32");
 }
