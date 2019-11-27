@@ -147,7 +147,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYUP:
         {
-            printf("Key UP: 0x%x\n", (uint32_t)wParam);
+            // printf("Key UP: 0x%x\n", (uint32_t)wParam);
 
             if (wParam <= 255)
             {
@@ -158,7 +158,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYDOWN:
         {
-            printf("Key Down: 0x%x\n", (uint32_t)wParam);
+            // printf("Key Down: 0x%x\n", (uint32_t)wParam);
 
             if (wParam <= 255)
             {
@@ -212,7 +212,7 @@ bool PDLDoWindowMessages()
 }
 
 bool PDLInit(const char *title, uint32_t title_len, uint32_t x, uint32_t y,
-             uint32_t width, uint32_t height)
+             uint32_t width, uint32_t height, uint32_t scale)
 {
     char *terminated_title = malloc(title_len + 1);
     if (memcpy(terminated_title, title, title_len) == NULL)
@@ -237,8 +237,8 @@ bool PDLInit(const char *title, uint32_t title_len, uint32_t x, uint32_t y,
     RECT rect = {
         x,
         y,
-        x + width,
-        y + height,
+        x + width*scale,
+        y + height*scale,
     };
 
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
