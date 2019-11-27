@@ -11,14 +11,18 @@ fn main() {
 		panic!("Failed to initialize pdl!");
 	}
 
+	println!("Initialized PDL!");
+
 	let mut bitmap: Box<[u32]> = vec![0;WIDTH*HEIGHT].into_boxed_slice();
 
 	loop{
 		if !pdl_do_window_messages() {
+			println!("Window Messages returned false");
 			break;
 		}
 
 		if pdl_get_key(Key::Escape as u8) > 0 {
+			println!("Escape key pressed!");
 			break;
 		}
 
@@ -31,4 +35,8 @@ fn main() {
 
 		pdl_blit_bitmap(&bitmap);
 	}
+
+	println!("Closing window!");
+
+	pdl_close_window();
 }

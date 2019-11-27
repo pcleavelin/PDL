@@ -211,7 +211,7 @@ bool PDLDoWindowMessages()
     return result;
 }
 
-bool PDLInit(const char *title, size_t title_len, uint32_t x, uint32_t y,
+bool PDLInit(const char *title, uint32_t title_len, uint32_t x, uint32_t y,
              uint32_t width, uint32_t height)
 {
     char *terminated_title = malloc(title_len + 1);
