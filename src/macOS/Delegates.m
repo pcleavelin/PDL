@@ -133,12 +133,36 @@
 @end
 
 @implementation PDLView
-- (void)drawRect:(NSRect)rect {
-	CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+@synthesize bitmapMemory;
+@synthesize bitmapWidth;
+@synthesize bitmapHeight;
 
-	CGContextSetRGBFillColor (ctx, 1, 0, 0, 1);
-    CGContextFillRect (ctx, CGRectMake (0, 0, 200, 100 ));
-    CGContextSetRGBFillColor (ctx, 0, 0, 1, .5);
-    CGContextFillRect (ctx, CGRectMake (0, 0, 100, 200));
+- (void)drawRect:(NSRect)rect {	
+	CGContextRef graphicsContext = [NSGraphicsContext currentContext].CGContext;
+
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+
+	self.provider = CGDataProviderCreateWithData(NULL, self.bitmapMemory, sizeof(uint32_t)*self.bitmapWidth*self.bitmapHeight, NULL);
+	self.image = CGImageCreate(self.bitmapWidth,
+									 self.bitmapHeight,
+									 8,
+									 32,
+									 sizeof(uint32_t)*self.bitmapWidth,
+									 colorSpace,
+									 kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast,
+									 self.provider,
+									 NULL,
+									 false,
+									 kCGRenderingIntentDefault);
+	CGColorSpaceRelease(colorSpace);
+
+	CGContextDrawImage(graphicsContext, rect, self.image);
+
+	CGImageRelease(self.image);
+	CGDataProviderRelease(self.provider);
+}
+
+- (void)dealloc {
+	free(view.bitmapMemory);
 }
 @end
