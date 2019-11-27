@@ -6,7 +6,7 @@ const WIDTH: usize = 1024;
 const HEIGHT: usize = 768;
 
 fn main() {
-	if !pdl_init("My Rust Game", 128, 128, WIDTH as u32, HEIGHT as u32)
+	if !pdl_init("My Rust Game", 128, 128, WIDTH as u32, HEIGHT as u32, 1)
 	{
 		panic!("Failed to initialize pdl!");
 	}

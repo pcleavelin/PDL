@@ -53,7 +53,7 @@ bool PDLDoWindowMessages() {
 }
 
 bool PDLInit(const char *title, uint32_t title_len, uint32_t x, uint32_t y,
-             uint32_t width, uint32_t height) 
+             uint32_t width, uint32_t height, uint32_t scale) 
 {
 	application = [NSApplication sharedApplication];
 
@@ -70,7 +70,7 @@ bool PDLInit(const char *title, uint32_t title_len, uint32_t x, uint32_t y,
 							   length:(NSUInteger)title_len
 							   encoding:NSASCIIStringEncoding];
 
-	rect = NSMakeRect(x,y, width, height);
+	rect = NSMakeRect(x,y, width*scale, height*scale);
 
 	window = [[Window alloc] initWithContentRect: rect
 							  styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable
