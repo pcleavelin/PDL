@@ -139,6 +139,7 @@
 
 - (void)drawRect:(NSRect)rect {	
 	CGContextRef graphicsContext = [NSGraphicsContext currentContext].CGContext;
+	CGContextSetInterpolationQuality(graphicsContext, kCGInterpolationNone);
 
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
@@ -149,10 +150,10 @@
 									 32,
 									 sizeof(uint32_t)*self.bitmapWidth,
 									 colorSpace,
-									 kCGBitmapByteOrderDefault|kCGImageAlphaNoneSkipLast,
+									 kCGBitmapByteOrder32Little|kCGImageAlphaNoneSkipFirst,
 									 self.provider,
 									 NULL,
-									 false,
+									 NO,
 									 kCGRenderingIntentDefault);
 	CGColorSpaceRelease(colorSpace);
 
